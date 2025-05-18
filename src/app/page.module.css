@@ -8,6 +8,14 @@
   padding: 0 0.5rem;
 }
 
+.board {
+  display: flex;
+  flex-flow: row wrap;
+  width: 270px;
+  height: 270px;
+  background-color: gray;
+}
+
 .samplecell {
   width: 30px;
   height: 30px;
