@@ -25,9 +25,11 @@ export default function Home() {
   ]);
   const [userInputs, setUserInputs] = useState([0]);
   const [board, setBoard] = useState([bombMap, userInputs]);
-  const clickHundler = (x: number, y: number) => {
-    const newBoard = structuredClone(board);
-  };
+  console.log(useState);
+  const x = 0;
+  const y = 0;
+  //const [board,newBoard] = (x: number, y: number) structuredClone(board);
+
   const [samplePoints, setSamplePoints] = useState([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
   console.log(samplePoints);
   const [sampleCounter, setSampleCounter] = useState(0);
@@ -38,18 +40,23 @@ export default function Home() {
     setSamplePoints(newSamplePoint);
     setSampleCounter((sampleCounter + 1) % 14);
   };
+  const handleClick = () => {
+    console.log('クリック！');
+  };
   const totalPoint = calcTotalPoint(samplePoints);
   console.log(totalPoint);
   return (
     <div className={styles.container}>
       <div className={styles.board}>
-        {board.map(row.y)}
+        {/* {board.map(row.y)} */}
         <div
           className={styles.samplecell}
           style={{ backgroundPosition: `${sampleCounter * -30}px` }}
         />
       </div>
-      <button onClick={clickHundler}>Click</button>
+      <button onClick={clickHundler}>go</button>
+      <button onClick={clickHundler}>retry</button>
+      <button onClick={handleClick}>stop</button>
     </div>
   );
 }
