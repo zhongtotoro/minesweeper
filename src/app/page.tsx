@@ -24,7 +24,7 @@ export default function Home() {
     [0, 0, 0, 0, 0, 0, 0, 0, 0],
   ]);
   const [userInputs, setUserInputs] = useState([0]);
-  const [board, setBoard] = useState([bombMap, userInputs]);
+  const [board, setBoard] = useState([bombMap, userInputs]); //zahyou
   console.log(useState);
   const x = 0;
   const y = 0;
