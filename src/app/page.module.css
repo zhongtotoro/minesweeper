@@ -23,3 +23,11 @@
   border: solid 1px;
   border-color: black;
 }
+
+.covercell {
+  width: 30px;
+  height: 30px;
+  background-color: green;
+  border: solid 1px;
+  border-color: black;
+}

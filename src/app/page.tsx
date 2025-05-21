@@ -26,21 +26,22 @@ export default function Home() {
   const [userInputs, setUserInputs] = useState([0]);
   const [board, setBoard] = useState([bombMap, userInputs]); //zahyou
   console.log(useState);
-  const x = 0;
-  const y = 0;
-  //const [board,newBoard] = (x: number, y: number) structuredClone(board);
+
+  const clickHundler = (x: number, y: number) => {
+    const newBoard = structuredClone(board);
+  };
 
   const [samplePoints, setSamplePoints] = useState([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
   console.log(samplePoints);
   const [sampleCounter, setSampleCounter] = useState(0);
   console.log(sampleCounter);
-  const clickHundler = () => {
+  const hundleClick = () => {
     const newSamplePoint = structuredClone(samplePoints);
     newSamplePoint[sampleCounter] += 1;
     setSamplePoints(newSamplePoint);
     setSampleCounter((sampleCounter + 1) % 14);
   };
-  const handleClick = () => {
+  const clickReturn = () => {
     console.log('クリック！');
   };
   const totalPoint = calcTotalPoint(samplePoints);
@@ -52,11 +53,13 @@ export default function Home() {
         <div
           className={styles.samplecell}
           style={{ backgroundPosition: `${sampleCounter * -30}px` }}
-        />
+        >
+          <div className={styles.covercell} />
+        </div>
       </div>
-      <button onClick={clickHundler}>go</button>
-      <button onClick={clickHundler}>retry</button>
-      <button onClick={handleClick}>stop</button>
+      <button onClick={hundleClick}>go</button>
+      <button onClick={clickReturn}>retry</button>
+      <button onClick={clickReturn}>stop</button>
     </div>
   );
 }
