@@ -4,6 +4,7 @@ import { useState } from 'react';
 import styles from './page.module.css';
 
 let sum: number = 0;
+[0];
 const calcTotalPoint = (arr: number[]) => {
   //userI,bombがくる
   for (let i = 0; i < arr.length; i++) {
@@ -23,14 +24,15 @@ export default function Home() {
     [0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0],
   ]);
-  const [userInputs, setUserInputs] = useState([0]);
-  const [board, setBoard] = useState([bombMap, userInputs]); //zahyou
-  console.log(useState);
+
+  // const [board, setBoard] = useState([bombMap, userInputs]); //zahyou
+  // console.log(useState);
 
   const clickHundler = (x: number, y: number) => {
-    const newBoard = structuredClone(board);
+    const newBombMap = structuredClone(bombMap);
   };
-
+  console.log(newBombMap);
+  const [userInputs, setUserInputs] = useState([0]);
   const [samplePoints, setSamplePoints] = useState([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
   console.log(samplePoints);
   const [sampleCounter, setSampleCounter] = useState(0);
@@ -58,7 +60,7 @@ export default function Home() {
         </div>
       </div>
       <button onClick={hundleClick}>go</button>
-      <button onClick={clickReturn}>retry</button>
+      <button onClick={clickHundler}>retry</button>
       <button onClick={clickReturn}>stop</button>
     </div>
   );
@@ -77,3 +79,11 @@ export default function Home() {
 
 //ユーザーがクリック→board[useInput][bompmap]
 //八方向を調べて（矢印で表せる）爆弾（samplecounter）があったら＋１でー３０Px分動かす
+
+//セルを増殖、座標であつかえるように
+//boardの設置
+//→八方向調べて爆弾あれ ba 爆弾total?
+//→八方向調べて爆弾あれ ba 爆弾total?
+//クリックイベントでセルのカバーが外れる←なくすてどうやる？
+//再起関数で連鎖
+//
