@@ -4,7 +4,6 @@ import { useState } from 'react';
 import styles from './page.module.css';
 
 let sum: number = 0;
-[0];
 const calcTotalPoint = (arr: number[]) => {
   //userI,bombがくる
   for (let i = 0; i < arr.length; i++) {
@@ -12,23 +11,35 @@ const calcTotalPoint = (arr: number[]) => {
     return sum;
   } //returnの後ろは数字（？）式は前に、
 };
+
 export default function Home() {
   const level: string[] = ['初級', '中級', '上級', 'カスタム'];
-  const [newlevel, setLevel] = useState(level[0]);
+  const [newLevel, setLevel] = useState(level[0]);
+  // setLevel(newLevel[0]);
 
   const numberOfBombs: number[] = [10, 40, 99, 0];
   const [newNumberOfBombs, setNumberOfBombs] = useState(numberOfBombs[0]);
 
   type boardsize = {
-    x: number;
-    y: number;
+    n: number;
+    m: number;
   };
+
   const cellNumber: boardsize[] = [
-    { x: 9, y: 9 },
-    { x: 16, y: 16 },
-    { x: 30, y: 16 },
-    { x: 0, y: 0 },
+    { n: 9, m: 9 },
+    { n: 16, m: 16 },
+    { n: 30, m: 16 },
+    { n: 0, m: 0 },
   ];
+
+  // let testMap: number[][] = [[0]];
+  // for (let i = 0; i <= n; i++) {
+
+  // }
+
+  const arr = Array.from({ length: 9 }, (v, i) => [0] * i); //boardが作れそうlengthのところに変数をいれたい
+
+  console.log(arr);
 
   const bombMap: number[][][] = [
     [
@@ -75,11 +86,23 @@ export default function Home() {
       [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
       [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
       [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     ], //上級
     [], //カスタムどうすんのこれ
   ];
   const [newBombMap, setNewBombMap] = useState(bombMap[0]);
+
+  const derection = [
+    [
+      [0, -1], // 上
+      [1, -1], // 右上
+      [1, 0], // 右
+      [1, 1], // 右下
+      [0, 1], // 下
+      [-1, 1], // 左下
+      [-1, 0], // 左
+      [-1, -1], // 左上
+    ],
+  ]; //direction[0][0]とかやるはず
 
   // const [board, setBoard] = useState([bombMap, userInputs]); //zahyou
   // console.log(useState);
@@ -89,7 +112,7 @@ export default function Home() {
     setNewBombMap(newBombMap);
   };
   console.log(bombMap);
-  const [userInputs, setUserInputs] = useState([0]);
+  const [userInputs, setUserInputs] = useState([0]); //koremo9x9
   const [samplePoints, setSamplePoints] = useState([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
   console.log(samplePoints);
   const [sampleCounter, setSampleCounter] = useState(0);
@@ -108,19 +131,15 @@ export default function Home() {
   return (
     <div className={styles.container}>
       <div className={styles.board}>
-        {bombMap.map((row, y) => (
-          <div key={y}>
-            {row.map((col, x) => (
-              <div key={x} className={styles.cell} />
-            ))}
-          </div>
-        ))}
-        <div
-          className={styles.samplecell}
-          style={{ backgroundPosition: `${sampleCounter * -30}px` }}
-        >
-          <div className={styles.covercell} />
-        </div>
+        {newBombMap.map((row, y) =>
+          row.map((color, x) => (
+            <div
+              className={styles.samplecell}
+              key={`${x}-${y}`}
+              style={{ backgroundPosition: `${sampleCounter * -30}px` }}
+            />
+          )),
+        )}
       </div>
       <button onClick={hundleClick}>go</button>
       <button onClick={clickHundler}>retry</button>
