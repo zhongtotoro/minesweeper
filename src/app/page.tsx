@@ -18,132 +18,156 @@ export default function Home() {
   // setLevel(newLevel[0]);
   const first: (string | number)[] = ['初級', 10];
   const numberOfBombs: number[] = [10, 40, 99, 0];
-  const [newNumberOfBombs, setNumberOfBombs] = useState(numberOfBombs[0]);
-
-  type boardsize = {
-    n: number;
-    m: number;
-  };
-
-  const cellNumber: boardsize[] = [
-    { n: 9, m: 9 },
-    { n: 16, m: 16 },
-    { n: 30, m: 16 },
-    { n: 0, m: 0 },
-  ];
+  const [newNumberOfBombs, setNumberOfBombs] = useState<number>(numberOfBombs[0]);
 
   const boardSize: number[][] = [
+    //使ってる
     [9, 9],
     [16, 16],
     [30, 16],
     [0, 0],
   ];
 
-  const row: number = boardSize[0][0];
-  const col: number = boardSize[0][1];
-
-  function makeBomb() {
+  function makeMap(size: number[], bombLevel: number): number[][] {
+    //変数名、（引数）、変数はどんな形で出力されるか
     //mapを作る
-    const row: number = boardSize[0][0];
-    const col: number = boardSize[0][1];
+    const row: number = size[0];
+    const col: number = size[1];
     const testMap: number[][] = [];
-    const rowList: number[] = [];
-    const bobmList: number[] = [];
-    for (let i = 0; i <= row; i++) {
-      bobmList.push(1);
-    }
-    testMap.push(bobmList);
-    for (let i = 0; i <= row; i++) {
-      rowList.push(0);
+
+    for (let i = 0; i < row; i++) {
+      const rowList: number[] = [];
       for (let i = 0; i < col; i++) {
         rowList.push(0);
       }
       testMap.push(rowList);
     }
-    console.log(testMap);
-    return testMap;
-  }
 
-  function bombPlace() {
-    //地雷の位置を決める
-    let flatBomb = makeBomb.flat();
-
-      for (let i = cloneArray.length - 1; i >= 0; i--) {
-        const rand = Math.floor(Math.random() * (i + 1));
-        // 配列の要素の順番を入れ替える
-        const tmpStorage = cloneArray[i];
-        cloneArray[i] = cloneArray[rand];
-        cloneArray[rand] = tmpStorage;
+    let countBomb = 0;
+    while (countBomb < bombLevel) {
+      const r = Math.floor(Math.random() * row);
+      const c = Math.floor(Math.random() * col);
+      if (testMap[r][c] === 0) {
+        testMap[r][c] = 1;
+        countBomb += 1;
       }
-
-      return cloneArray;
-    };
+    }
+    return testMap; //最後に置く
   }
 
+  const bombMap = makeMap(boardSize[0], numberOfBombs[0]);
+  const bombMap = useState<number>(0);
+  const newBombMap = structuredClone(bombMap);
 
-
-  // const abombMap: number[][][] = [
-  //   [
-  //     [0, 0, 0, 0, 0, 0, 0, 0, 0],
-  //     [0, 0, 0, 0, 0, 0, 0, 0, 0],
-  //     [0, 0, 0, 0, 0, 0, 0, 0, 0],
-  //     [0, 0, 0, 0, 0, 0, 0, 0, 0],
-  //     [0, 0, 0, 0, 0, 0, 0, 0, 0],
-  //     [0, 0, 0, 0, 0, 0, 0, 0, 0],
-  //     [0, 0, 0, 0, 0, 0, 0, 0, 0],
-  //     [0, 0, 0, 0, 0, 0, 0, 0, 0],
-  //     [0, 0, 0, 0, 0, 0, 0, 0, 0],
-  //   ], //初級
-  //   [
-  //     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  //     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  //     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  //     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  //     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  //     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  //     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  //     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  //     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  //     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  //     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  //     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  //     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  //     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  //     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  //     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  //   ], //chuukyu]
-  //   [
-  //     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  //     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  //     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  //     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  //     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  //     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  //     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  //     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  //     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  //     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  //     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  //     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  //     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  //     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  //   ], //上級
-  //   [], //カスタムどうすんのこれ
-  // ];
-  const [newBombMap, setNewBombMap] = useState(bombMap[0]);
   //八方向を調べて（矢印で表せる）爆弾（samplecounter）があったら＋１でー３０Px分動かす
   const derection = [
-
-      [0, -1], // 上
-      [1, -1], // 右上
-      [1, 0], // 右
-      [1, 1], // 右下
-      [0, 1], // 下
-      [-1, 1], // 左下
-      [-1, 0], // 左
-      [-1, -1], // 左上
-
+    [0, -1], // 上
+    [1, -1], // 右上
+    [1, 0], // 右
+    [1, 1], // 右下
+    [0, 1], // 下
+    [-1, 1], // 左下
+    [-1, 0], // 左
+    [-1, -1], // 左上
   ]; //direction[0][0]とかやるはず
+
+  for (let y = 0; y < 9; y++) {
+    //newBoardじゃなくてBombMapじゃないの、なにもかえてないんだもん
+    //9の部分を変数にしたい
+    for (let x = 0; x < 9; x++) {
+      console.log(bombMap[y][x - 1]);
+      let count = 0;
+      // const place = newBombMap[y][x - 1];
+      while (true) {
+        //上
+        if (bombMap[y][x - 1] === undefined || bombMap[y][x - 1] === 0) {
+          break; //空きますか盤外ならなにもしない
+        }
+        if (bombMap[y][x - 1] === 1) {
+          //爆弾を表示
+          count += 1;
+        }
+      }
+
+      while (true) {
+        //右上
+        if (bombMap[y + 1][x - 1] === undefined || bombMap[y + 1][x - 1] === 0) {
+          break; //空きますか盤外ならなにもしない
+        }
+        if (bombMap[y + 1][x - 1] === 1) {
+          //爆弾を表示
+          count += 1;
+        }
+      }
+
+      while (true) {
+        //→
+        if (bombMap[y + 1][x] === undefined || bombMap[y + 1][x] === 0) {
+          break; //空きますか盤外ならなにもしない
+        }
+        if (bombMap[y + 1][x] === 1) {
+          //爆弾を表示
+          count += 1;
+        }
+      }
+
+      while (true) {
+        //右下
+        if (bombMap[y + 1][x + 1] === undefined || bombMap[y + 1][x + 1] === 0) {
+          break; //空きますか盤外ならなにもしない
+        }
+        if (bombMap[y + 1][x + 1] === 1) {
+          //爆弾を表示
+          count += 1;
+        }
+      }
+
+      while (true) {
+        //sita
+        if (bombMap[y][x + 1] === undefined || bombMap[y][x + 1] === 0) {
+          break; //空きますか盤外ならなにもしない
+        }
+        if (bombMap[y][x + 1] === 1) {
+          //爆弾を表示
+          count += 1;
+        }
+      }
+
+      while (true) {
+        //hidarisita
+        if (bombMap[y - 1][x + 1] === undefined || bombMap[y - 1][x + 1] === 0) {
+          break; //空きますか盤外ならなにもしない
+        }
+        if (bombMap[y - 1][x + 1] === 1) {
+          //爆弾を表示
+          count += 1;
+        }
+      }
+
+      while (true) {
+        //←
+        if (bombMap[y - 1][x] === undefined || bombMap[y - 1][x] === 0) {
+          break; //空きますか盤外ならなにもしない
+        }
+        if (bombMap[y - 1][x] === 1) {
+          //爆弾を表示
+          count += 1;
+        }
+      }
+
+      while (true) {
+        //左上
+        if (bombMap[y - 1][x - 1] === undefined || bombMap[y - 1][x - 1] === 0) {
+          break; //空きますか盤外ならなにもしない
+        }
+        if (bombMap[y - 1][x - 1] === 1) {
+          //爆弾を表示
+          count += 1;
+        }
+      }
+      newBombMap[y][x];
+    }
+  }
 
   // const [board, setBoard] = useState([bombMap, userInputs]); //zahyou
   // console.log(useState);
