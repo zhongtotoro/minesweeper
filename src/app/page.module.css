@@ -16,11 +16,11 @@
   background-color: gray;
 }
 
-.samplecell {
+.undercell {
   width: 30px;
   height: 30px;
   background: url('~/src/assets/images/icons.png') no-repeat;
-  border: solid 1px;
+  border: solid 0.5px;
   border-color: black;
 }
 

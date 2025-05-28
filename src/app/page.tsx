@@ -11,14 +11,33 @@ const calcTotalPoint = (arr: number[]) => {
     return sum;
   } //returnの後ろは数字（？）式は前に、
 };
+//userInputは０か１か 爆弾があるのは０か１か
+const calcBoard = (userInput: number[][], bombMap: number[][]) => {
+  const newBoard = Array.from({ length: userInput.length }, () =>
+    Array.from({ length: userInput[0].length }, () => 0),
+  );
+  for (let y = 0; y <= 9; y++) {
+    for (let x = 0; x <= 9; x++) {
+      if (userInput[y] === undefined) {
+        return newBoard;
+      }
+      if (userInput[y][x] === undefined) {
+        return newBoard;
+      }
+      if (userInput[y][x] === 1 && bombMap[y][x] === 1) {
+      }
+    }
+  }
+  return newBoard;
+};
 
 export default function Home() {
-  const level: string[] = ['初級', '中級', '上級', 'カスタム'];
-  const [newLevel, setLevel] = useState(level[0]);
+  const firstlevel: string[] = ['初級', '中級', '上級', 'カスタム'];
+  const [level, setLevel] = useState(0);
   // setLevel(newLevel[0]);
-  const first: (string | number)[] = ['初級', 10];
+  const first: (string | number)[] = ['初級', 10]; //練習
   const numberOfBombs: number[] = [10, 40, 99, 0];
-  const [newNumberOfBombs, setNumberOfBombs] = useState<number>(numberOfBombs[0]);
+  //const [newNumberOfBombs, setNumberOfBombs] = useState<number>(numberOfBombs[0]);
 
   const boardSize: number[][] = [
     //使ってる
@@ -55,10 +74,30 @@ export default function Home() {
     return testMap; //最後に置く
   }
 
-  const bombMap = makeMap(boardSize[0], numberOfBombs[0]);
-  const bombMap = useState<number>(0);
+  const initialBombMap = makeMap(boardSize[0], numberOfBombs[0]);
+  const [bombMap, setBombMap] = useState<number[][]>(initialBombMap);
   const newBombMap = structuredClone(bombMap);
 
+  function makeUserInput(size: number[]): number[][] {
+    const row: number = size[0];
+    const col: number = size[1];
+    const testMap: number[][] = [];
+
+    for (let i = 0; i < row; i++) {
+      const rowList: number[] = [];
+      for (let i = 0; i < col; i++) {
+        rowList.push(0);
+      }
+      testMap.push(rowList);
+    }
+    return testMap;
+  }
+
+  const userInput = makeUserInput(boardSize[0]);
+
+  const board = calcBoard(userInput, bombMap);
+
+  //userInputとbombMapを合体
   //八方向を調べて（矢印で表せる）爆弾（samplecounter）があったら＋１でー３０Px分動かす
   const derection = [
     [0, -1], // 上
@@ -71,13 +110,13 @@ export default function Home() {
     [-1, -1], // 左上
   ]; //direction[0][0]とかやるはず
 
+  const count = 0;
   for (let y = 0; y < 9; y++) {
     //newBoardじゃなくてBombMapじゃないの、なにもかえてないんだもん
     //9の部分を変数にしたい
     for (let x = 0; x < 9; x++) {
-      console.log(bombMap[y][x - 1]);
       let count = 0;
-      // const place = newBombMap[y][x - 1];
+
       while (true) {
         //上
         if (bombMap[y][x - 1] === undefined || bombMap[y][x - 1] === 0) {
@@ -91,7 +130,11 @@ export default function Home() {
 
       while (true) {
         //右上
-        if (bombMap[y + 1][x - 1] === undefined || bombMap[y + 1][x - 1] === 0) {
+        if (
+          bombMap[y + 1] === undefined ||
+          bombMap[y + 1][x - 1] === undefined ||
+          bombMap[y + 1][x - 1] === 0
+        ) {
           break; //空きますか盤外ならなにもしない
         }
         if (bombMap[y + 1][x - 1] === 1) {
@@ -113,7 +156,11 @@ export default function Home() {
 
       while (true) {
         //右下
-        if (bombMap[y + 1][x + 1] === undefined || bombMap[y + 1][x + 1] === 0) {
+        if (
+          bombMap[y + 1] === undefined ||
+          bombMap[y + 1][x + 1] === undefined ||
+          bombMap[y + 1][x + 1] === 0
+        ) {
           break; //空きますか盤外ならなにもしない
         }
         if (bombMap[y + 1][x + 1] === 1) {
@@ -135,7 +182,11 @@ export default function Home() {
 
       while (true) {
         //hidarisita
-        if (bombMap[y - 1][x + 1] === undefined || bombMap[y - 1][x + 1] === 0) {
+        if (
+          bombMap[y - 1] === undefined ||
+          bombMap[y - 1][x + 1] === undefined ||
+          bombMap[y - 1][x + 1] === 0
+        ) {
           break; //空きますか盤外ならなにもしない
         }
         if (bombMap[y - 1][x + 1] === 1) {
@@ -157,7 +208,11 @@ export default function Home() {
 
       while (true) {
         //左上
-        if (bombMap[y - 1][x - 1] === undefined || bombMap[y - 1][x - 1] === 0) {
+        if (
+          bombMap[y - 1] === undefined ||
+          bombMap[y - 1][x - 1] === undefined ||
+          bombMap[y - 1][x - 1] === 0
+        ) {
           break; //空きますか盤外ならなにもしない
         }
         if (bombMap[y - 1][x - 1] === 1) {
@@ -165,15 +220,16 @@ export default function Home() {
           count += 1;
         }
       }
-      newBombMap[y][x];
+      newBombMap[y][x] = count;
     }
+    setBombMap(newBombMap);
   }
 
   // const [board, setBoard] = useState([bombMap, userInputs]); //zahyou
   // console.log(useState);
 
   const clickHundler = () => {
-    const newBombMap = structuredClone(bombMap[0]);
+    const newBombMap = structuredClone(bombMap);
     setNewBombMap(newBombMap);
   };
   console.log(bombMap);
@@ -196,13 +252,16 @@ export default function Home() {
   return (
     <div className={styles.container}>
       <div className={styles.board}>
-        {newBombMap.map((row, y) =>
+        {board.map((row, y) =>
           row.map((color, x) => (
-            <div
-              className={styles.samplecell}
-              key={`${x}-${y}`}
-              style={{ backgroundPosition: `${sampleCounter * -30}px` }}
-            />
+            <div className={styles.undercell} key={`${x}-${y}`} onClick={() => clickHundler(x, y)}>
+              {bombMap[y][x] !== 0 && (
+                <div
+                  className={styles.stone}
+                  style={{ backgroundPosition: picture === 1 ? `${150}px` : `${count * -30}px` }}
+                />
+              )}
+            </div>
           )),
         )}
       </div>
