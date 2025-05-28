@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState } from 'react'; //状態は多分6つ（ユーザー操作、爆弾位置、時間、級選択、盤面サイズ、爆弾数）
 import styles from './page.module.css';
 
 let sum: number = 0;
@@ -9,15 +9,44 @@ const calcTotalPoint = (arr: number[]) => {
   for (let i = 0; i < arr.length; i++) {
     sum += arr[i];
     return sum;
-  } //returnの後ろは数字（？）式は前に、
+  }
 };
 //userInputは０か１か 爆弾があるのは０か１か
-const calcBoard = (userInput: number[][], bombMap: number[][]) => {
-  const newBoard = Array.from({ length: userInput.length }, () =>
-    Array.from({ length: userInput[0].length }, () => 0),
+const calcBoard = (userInputs: number[][], bombMap: number[][]) => {
+  const newBoard = Array.from({ length: userInputs.length }, () =>
+    Array.from({ length: userInputs[0].length }, () => 0),
   );
-  for (let y = 0; y <= 9; y++) {
-    for (let x = 0; x <= 9; x++) {
+  for (let y = 0; y < userInputs.length; y++) {
+    for (let x = 0; x < userInputs[0].length; x++) {
+      if (userInputs[y][x] === 1) {
+        newBoard[y][x] = 1;
+      }
+      if (userInputs[y][x] === 2) {
+        newBoard[y][x] = 2;
+      }
+    }
+  }
+  return newBoard;
+
+  for (let y = 0; y <= userInput.length; y++) {
+    for (let x = 0; x <= userInput[0].length; x++) {
+      let count = 0; //周囲の爆弾の数を数える、爆弾があるときは０
+      for (let dy = -1; dy <= 1; dy++) {
+        for (let dx = -1; dx <= 1; dx++) {
+          if (
+            y + dy < 0 ||
+            y + dy >= userInput.length ||
+            x + dx < 0 ||
+            x + dx >= userInput[0].length
+          ) {
+            continue;
+          }
+          if (bombMap[y + dy][x + dx] === 1) {
+            count += 1;
+          }
+        }
+      }
+      newBoard[y][x] = count;
       if (userInput[y] === undefined) {
         return newBoard;
       }
@@ -25,6 +54,26 @@ const calcBoard = (userInput: number[][], bombMap: number[][]) => {
         return newBoard;
       }
       if (userInput[y][x] === 1 && bombMap[y][x] === 1) {
+        //newBoard[y][x] = 'background-color:red'; //背景赤にしたい
+        //cell全部開く
+      }
+      if (userInput[y][x] === 1 && bombMap[y][x] === 0) {
+        //クリックしたマスと周囲のマスを開く
+        for (let dy = -1; dy <= 1; dy++) {
+          for (let dx = -1; dx <= 1; dx++) {
+            if (
+              y + dy < 0 ||
+              y + dy >= userInput.length ||
+              x + dx < 0 ||
+              x + dx >= userInput[0].length
+            ) {
+              continue;
+            }
+            if (bombMap[y + dy][x + dx] === 0) {
+              console.log('ok');
+            }
+          }
+        }
       }
     }
   }
@@ -32,15 +81,10 @@ const calcBoard = (userInput: number[][], bombMap: number[][]) => {
 };
 
 export default function Home() {
-  const firstlevel: string[] = ['初級', '中級', '上級', 'カスタム'];
-  const [level, setLevel] = useState(0);
-  // setLevel(newLevel[0]);
-  const first: (string | number)[] = ['初級', 10]; //練習
   const numberOfBombs: number[] = [10, 40, 99, 0];
-  //const [newNumberOfBombs, setNumberOfBombs] = useState<number>(numberOfBombs[0]);
+  const [newNumberOfBombs, setNumberOfBombs] = useState<number>(numberOfBombs[0]);
 
   const boardSize: number[][] = [
-    //使ってる
     [9, 9],
     [16, 16],
     [30, 16],
@@ -64,14 +108,14 @@ export default function Home() {
 
     let countBomb = 0;
     while (countBomb < bombLevel) {
-      const r = Math.floor(Math.random() * row);
-      const c = Math.floor(Math.random() * col);
-      if (testMap[r][c] === 0) {
-        testMap[r][c] = 1;
+      const y = Math.floor(Math.random() * row);
+      const x = Math.floor(Math.random() * col);
+      if (testMap[y][x] === 0) {
+        testMap[y][x] = 1;
         countBomb += 1;
       }
     }
-    return testMap; //最後に置く
+    return testMap;
   }
 
   const initialBombMap = makeMap(boardSize[0], numberOfBombs[0]);
@@ -94,146 +138,27 @@ export default function Home() {
   }
 
   const userInput = makeUserInput(boardSize[0]);
+  const clickcell = (y: number, x: number) => {
+    userInput[y][x] = 1;
+  };
 
-  const board = calcBoard(userInput, bombMap);
-
-  //userInputとbombMapを合体
-  //八方向を調べて（矢印で表せる）爆弾（samplecounter）があったら＋１でー３０Px分動かす
-  const derection = [
-    [0, -1], // 上
-    [1, -1], // 右上
-    [1, 0], // 右
-    [1, 1], // 右下
-    [0, 1], // 下
-    [-1, 1], // 左下
-    [-1, 0], // 左
-    [-1, -1], // 左上
-  ]; //direction[0][0]とかやるはず
-
-  const count = 0;
-  for (let y = 0; y < 9; y++) {
-    //newBoardじゃなくてBombMapじゃないの、なにもかえてないんだもん
-    //9の部分を変数にしたい
-    for (let x = 0; x < 9; x++) {
-      let count = 0;
-
-      while (true) {
-        //上
-        if (bombMap[y][x - 1] === undefined || bombMap[y][x - 1] === 0) {
-          break; //空きますか盤外ならなにもしない
-        }
-        if (bombMap[y][x - 1] === 1) {
-          //爆弾を表示
-          count += 1;
-        }
-      }
-
-      while (true) {
-        //右上
-        if (
-          bombMap[y + 1] === undefined ||
-          bombMap[y + 1][x - 1] === undefined ||
-          bombMap[y + 1][x - 1] === 0
-        ) {
-          break; //空きますか盤外ならなにもしない
-        }
-        if (bombMap[y + 1][x - 1] === 1) {
-          //爆弾を表示
-          count += 1;
-        }
-      }
-
-      while (true) {
-        //→
-        if (bombMap[y + 1][x] === undefined || bombMap[y + 1][x] === 0) {
-          break; //空きますか盤外ならなにもしない
-        }
-        if (bombMap[y + 1][x] === 1) {
-          //爆弾を表示
-          count += 1;
-        }
-      }
-
-      while (true) {
-        //右下
-        if (
-          bombMap[y + 1] === undefined ||
-          bombMap[y + 1][x + 1] === undefined ||
-          bombMap[y + 1][x + 1] === 0
-        ) {
-          break; //空きますか盤外ならなにもしない
-        }
-        if (bombMap[y + 1][x + 1] === 1) {
-          //爆弾を表示
-          count += 1;
-        }
-      }
-
-      while (true) {
-        //sita
-        if (bombMap[y][x + 1] === undefined || bombMap[y][x + 1] === 0) {
-          break; //空きますか盤外ならなにもしない
-        }
-        if (bombMap[y][x + 1] === 1) {
-          //爆弾を表示
-          count += 1;
-        }
-      }
-
-      while (true) {
-        //hidarisita
-        if (
-          bombMap[y - 1] === undefined ||
-          bombMap[y - 1][x + 1] === undefined ||
-          bombMap[y - 1][x + 1] === 0
-        ) {
-          break; //空きますか盤外ならなにもしない
-        }
-        if (bombMap[y - 1][x + 1] === 1) {
-          //爆弾を表示
-          count += 1;
-        }
-      }
-
-      while (true) {
-        //←
-        if (bombMap[y - 1][x] === undefined || bombMap[y - 1][x] === 0) {
-          break; //空きますか盤外ならなにもしない
-        }
-        if (bombMap[y - 1][x] === 1) {
-          //爆弾を表示
-          count += 1;
-        }
-      }
-
-      while (true) {
-        //左上
-        if (
-          bombMap[y - 1] === undefined ||
-          bombMap[y - 1][x - 1] === undefined ||
-          bombMap[y - 1][x - 1] === 0
-        ) {
-          break; //空きますか盤外ならなにもしない
-        }
-        if (bombMap[y - 1][x - 1] === 1) {
-          //爆弾を表示
-          count += 1;
-        }
-      }
-      newBombMap[y][x] = count;
-    }
-    setBombMap(newBombMap);
-  }
-
-  // const [board, setBoard] = useState([bombMap, userInputs]); //zahyou
-  // console.log(useState);
-
+  //講習
   const clickHundler = () => {
     const newBombMap = structuredClone(bombMap);
     setNewBombMap(newBombMap);
   };
   console.log(bombMap);
-  const [userInputs, setUserInputs] = useState([0]); //koremo9x9
+  const [userInputs, setUserInputs] = useState([
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+  ]); //koremo9x9
   const [samplePoints, setSamplePoints] = useState([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
   console.log(samplePoints);
   const [sampleCounter, setSampleCounter] = useState(0);
@@ -249,18 +174,27 @@ export default function Home() {
   };
   const totalPoint = calcTotalPoint(samplePoints);
   console.log(totalPoint);
+  //ここまで関係ない
+  const board = calcBoard(userInputs, bombMap);
+  const onContextMenu = (x: number, y: number, evt: React.MouseEvent<HTMLDivElement>) => {
+    evt.preventDefault();
+    console.log(x, y);
+    const newUserInputs = structuredClone(userInputs);
+    newUserInputs[y][x] = newUserInputs[y][x] === 1 ? 2 : 1;
+    setUserInputs(newUserInputs);
+  };
   return (
     <div className={styles.container}>
       <div className={styles.board}>
         {board.map((row, y) =>
-          row.map((color, x) => (
-            <div className={styles.undercell} key={`${x}-${y}`} onClick={() => clickHundler(x, y)}>
-              {bombMap[y][x] !== 0 && (
-                <div
-                  className={styles.stone}
-                  style={{ backgroundPosition: picture === 1 ? `${150}px` : `${count * -30}px` }}
-                />
-              )}
+          row.map((value, x) => (
+            <div
+              className={styles.block}
+              key={`${x}-${y}`}
+              style={{ backgroundPosition: `${value === 2 ? -240 : value === 1 ? -270 : 30}px` }}
+              onContextMenu={(evt) => onContextMenu(x, y, evt)}
+            >
+              {board[y][x] === 0 && <div className={styles.stone} />}
             </div>
           )),
         )}
