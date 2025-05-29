@@ -13,22 +13,15 @@
   flex-flow: row wrap;
   width: 270px;
   height: 270px;
-  background-color: gray;
+  background-color: #c6c6c6;
 }
 
 .undercell {
   width: 30px;
   height: 30px;
   background: url('~/src/assets/images/icons.png') no-repeat;
+  background-color: #c6c6c6;
   border: solid 0.5px;
-  border-color: black;
-}
-
-.covercell {
-  width: 30px;
-  height: 30px;
-  background-color: green;
-  border: solid 1px;
   border-color: black;
 }
 

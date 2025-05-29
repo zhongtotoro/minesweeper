@@ -12,17 +12,29 @@ const calcTotalPoint = (arr: number[]) => {
   }
 };
 //userInputは０か１か 爆弾があるのは０か１か
-const calcBoard = (userInputs: number[][], bombMap: number[][]) => {
+const calcBoard = (userInputs: number[][], bombMaps: number[][]) => {
   const newBoard = Array.from({ length: userInputs.length }, () =>
     Array.from({ length: userInputs[0].length }, () => 0),
   );
   for (let y = 0; y < userInputs.length; y++) {
     for (let x = 0; x < userInputs[0].length; x++) {
       if (userInputs[y][x] === 1) {
-        newBoard[y][x] = 1;
+        newBoard[y][x] = 1; //爆弾じゃなかったら開く
       }
       if (userInputs[y][x] === 2) {
-        newBoard[y][x] = 2;
+        newBoard[y][x] = 2; //フラグ
+      }
+      if (userInputs[y][x] === 3) {
+        newBoard[y][x] = 3; //はてな
+      }
+      if (userInputs[y][x] === 4) {
+        newBoard[y][x] = 4; //透明
+      }
+      if (bombMaps[y][x] === 1) {
+        newBoard[y][x] = 11; //爆弾
+      }
+      if (1 <= bombMaps[y][x] && bombMaps[y][x] <= 8) {
+        newBoard[y][x] = bombMaps[y][x]; //爆弾なし
       }
     }
   }
@@ -138,16 +150,24 @@ export default function Home() {
   }
 
   const userInput = makeUserInput(boardSize[0]);
-  const clickcell = (y: number, x: number) => {
-    userInput[y][x] = 1;
-  };
 
   //講習
   const clickHundler = () => {
     const newBombMap = structuredClone(bombMap);
     setNewBombMap(newBombMap);
   };
-  console.log(bombMap);
+  const [bombMaps, setNewBombMap] = useState([
+    [0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 1, 0, 0, 0, 0, 0, 1, 0],
+    [0, 0, 0, 1, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 1, 0, 0],
+    [0, 0, 0, 1, 0, 0, 0, 0, 0],
+    [0, 1, 0, 0, 0, 1, 0, 1, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 1, 0, 0, 0, 0, 0, 0],
+  ]);
+  //console.log(bombMap);
   const [userInputs, setUserInputs] = useState([
     [0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -160,9 +180,9 @@ export default function Home() {
     [0, 0, 0, 0, 0, 0, 0, 0, 0],
   ]); //koremo9x9
   const [samplePoints, setSamplePoints] = useState([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
-  console.log(samplePoints);
+  //console.log(samplePoints);
   const [sampleCounter, setSampleCounter] = useState(0);
-  console.log(sampleCounter);
+  //console.log(sampleCounter);
   const hundleClick = () => {
     const newSamplePoint = structuredClone(samplePoints);
     newSamplePoint[sampleCounter] += 1;
@@ -170,17 +190,31 @@ export default function Home() {
     setSampleCounter((sampleCounter + 1) % 14);
   };
   const clickReturn = () => {
-    console.log('クリック！');
+    //console.log('クリック！');
   };
   const totalPoint = calcTotalPoint(samplePoints);
-  console.log(totalPoint);
+  //console.log(totalPoint);
   //ここまで関係ない
   const board = calcBoard(userInputs, bombMap);
-  const onContextMenu = (x: number, y: number, evt: React.MouseEvent<HTMLDivElement>) => {
+
+  const leftClick = (x: number, y: number) => {
+    console.log(x, y);
+    const newUserInputs = structuredClone(userInputs);
+    newUserInputs[y][x] = 1;
+    setUserInputs(newUserInputs);
+    console.log(newUserInputs[y][x]);
+  };
+  const rightClick = (x: number, y: number, evt: React.MouseEvent<HTMLDivElement>) => {
     evt.preventDefault();
     console.log(x, y);
     const newUserInputs = structuredClone(userInputs);
-    newUserInputs[y][x] = newUserInputs[y][x] === 1 ? 2 : 1;
+    //newUserInputs[y][x] = (newUserInputs[y][x] + 1) % 3;
+    if (newUserInputs[y][x] === 4 || newUserInputs[y][x] === 0) {
+      newUserInputs[y][x] = 2;
+    } else {
+      newUserInputs[y][x] = newUserInputs[y][x] + 1;
+    }
+    console.log('value=', newUserInputs[y][x]);
     setUserInputs(newUserInputs);
   };
   return (
@@ -189,12 +223,19 @@ export default function Home() {
         {board.map((row, y) =>
           row.map((value, x) => (
             <div
-              className={styles.block}
+              className={styles.undercell}
               key={`${x}-${y}`}
-              style={{ backgroundPosition: `${value === 2 ? -240 : value === 1 ? -270 : 30}px` }}
-              onContextMenu={(evt) => onContextMenu(x, y, evt)}
+              style={{ backgroundPosition: `${value * -30}px` }}
             >
-              {board[y][x] === 0 && <div className={styles.stone} />}
+              <div
+                className={styles.block}
+                style={{
+                  backgroundPosition: `${value === 2 ? -270 : value === 3 ? -240 : 30}px`,
+                  opacity: value === 1 ? 0 : 1,
+                }}
+                onContextMenu={(evt) => rightClick(x, y, evt)}
+                onClick={() => leftClick(x, y)}
+              />
             </div>
           )),
         )}
