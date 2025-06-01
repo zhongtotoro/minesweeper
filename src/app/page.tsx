@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react'; //状態は多分6つ（ユーザー操作、爆弾位置、時間、級選択、盤面サイズ、爆弾数）
+import { useEffect, useState } from 'react'; //状態は多分6つ（ユーザー操作、爆弾位置、時間、級選択、盤面サイズ、爆弾数）
 import styles from './page.module.css';
 
 let sum: number = 0;
@@ -92,8 +92,10 @@ const calcBoard = (userInputs: number[][], bombMaps: number[][]) => {
             } //cell爆弾だけ全部開く
           }
         }
+
         return newBoard;
       }
+
       if (userInputs[y][x] === 4 && bombMaps[y][x] === 0) {
         //セルをクリックしたら
         //クリックしたマスと周囲のマスを開く
@@ -228,6 +230,14 @@ export default function Home() {
   //ここまで関係ない
   const board = calcBoard(userInputs, bombMaps);
 
+  const [timer, setTimer] = useState(0);
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTimer((timer) => timer + 1);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
   const leftClick = (x: number, y: number) => {
     console.log(x, y);
     const newUserInputs = structuredClone(userInputs);
@@ -263,7 +273,7 @@ export default function Home() {
           <div
             className={styles.timer}
             style={{
-              backgroundPosition: `${-70}px`,
+              backgroundPosition: `${timer * -70}px`,
             }}
           />
         </div>
