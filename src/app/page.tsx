@@ -11,81 +11,114 @@ const calcTotalPoint = (arr: number[]) => {
     return sum;
   }
 };
+let face = 'default';
+let nokoriBomb = 10;
+
 //userInputは０か１か 爆弾があるのは０か１か
 const calcBoard = (userInputs: number[][], bombMaps: number[][]) => {
   const newBoard = Array.from({ length: userInputs.length }, () =>
     Array.from({ length: userInputs[0].length }, () => 0),
   );
+
   for (let y = 0; y < userInputs.length; y++) {
     for (let x = 0; x < userInputs[0].length; x++) {
-      if (userInputs[y][x] === 1) {
-        newBoard[y][x] = 1; //爆弾じゃなかったら開く
-      }
-      if (userInputs[y][x] === 2) {
-        newBoard[y][x] = 2; //フラグ
-      }
-      if (userInputs[y][x] === 3) {
-        newBoard[y][x] = 3; //はてな
-      }
-      if (userInputs[y][x] === 4) {
-        newBoard[y][x] = 4; //透明
-      }
-      if (bombMaps[y][x] === 1) {
-        newBoard[y][x] = 11; //爆弾
-      }
-      if (1 <= bombMaps[y][x] && bombMaps[y][x] <= 8) {
-        newBoard[y][x] = bombMaps[y][x]; //爆弾なし
-      }
-    }
-  }
-  return newBoard;
-
-  for (let y = 0; y <= userInput.length; y++) {
-    for (let x = 0; x <= userInput[0].length; x++) {
-      let count = 0; //周囲の爆弾の数を数える、爆弾があるときは０
+      //周囲の爆弾の数を数える、爆弾があるときは０
+      let count = 0;
       for (let dy = -1; dy <= 1; dy++) {
         for (let dx = -1; dx <= 1; dx++) {
           if (
             y + dy < 0 ||
-            y + dy >= userInput.length ||
+            y + dy >= userInputs.length ||
             x + dx < 0 ||
-            x + dx >= userInput[0].length
+            x + dx >= userInputs[0].length
           ) {
             continue;
           }
-          if (bombMap[y + dy][x + dx] === 1) {
+          if (bombMaps[y + dy][x + dx] === 1) {
             count += 1;
           }
         }
       }
-      newBoard[y][x] = count;
-      if (userInput[y] === undefined) {
+      if (count > 0) {
+        newBoard[y][x] = newBoard[y][x] + (count - 1) * 100;
+      } else {
+        newBoard[y][x] = newBoard[y][x] + 10000; //空
+      }
+      console.log(10000, nokoriBomb);
+
+      if (bombMaps[y][x] === 1) {
+        newBoard[y][x] = newBoard[y][x] + 1000; //爆弾
+      }
+      console.log(1000, nokoriBomb);
+
+      if (userInputs[y][x] === 1) {
+        newBoard[y][x] = newBoard[y][x] + 1; //フラグ
+      }
+      console.log(1, nokoriBomb);
+      if (userInputs[y][x] === 2) {
+        newBoard[y][x] = newBoard[y][x] + 2; //はてな
+      }
+      console.log(2, nokoriBomb);
+      if (userInputs[y][x] === 3) {
+        newBoard[y][x] = newBoard[y][x] + 3; //クリックした爆弾
+      }
+      console.log(3, nokoriBomb);
+      if (userInputs[y][x] === 4) {
+        newBoard[y][x] = newBoard[y][x] + 4; //透明
+      }
+      console.log(4, nokoriBomb);
+    }
+  } //クリックとセル表示の管理
+
+  for (let y = 0; y < userInputs.length; y++) {
+    for (let x = 0; x < userInputs[0].length; x++) {
+      if (userInputs[y] === undefined) {
+        return newBoard; ///いる？？
+      }
+      if (userInputs[y][x] === undefined) {
+        return newBoard; //いる？？
+      }
+      if (userInputs[y][x] === 4 && bombMaps[y][x] === 1) {
+        //爆弾をクリックしたら
+        newBoard[y][x] = newBoard[y][x] - 4;
+        newBoard[y][x] = newBoard[y][x] + 3;
+        console.log('4 && 1', nokoriBomb);
+        //マス背景赤にしたい
+        face = 'fail';
+        for (let y = 0; y < userInputs.length; y++) {
+          for (let x = 0; x < userInputs[0].length; x++) {
+            if (bombMaps[y][x] === 1) {
+              newBoard[y][x] = newBoard[y][x] + 4;
+            } //cell爆弾だけ全部開く
+          }
+        }
         return newBoard;
       }
-      if (userInput[y][x] === undefined) {
-        return newBoard;
-      }
-      if (userInput[y][x] === 1 && bombMap[y][x] === 1) {
-        //newBoard[y][x] = 'background-color:red'; //背景赤にしたい
-        //cell全部開く
-      }
-      if (userInput[y][x] === 1 && bombMap[y][x] === 0) {
+      if (userInputs[y][x] === 4 && bombMaps[y][x] === 0) {
+        //セルをクリックしたら
         //クリックしたマスと周囲のマスを開く
         for (let dy = -1; dy <= 1; dy++) {
           for (let dx = -1; dx <= 1; dx++) {
             if (
               y + dy < 0 ||
-              y + dy >= userInput.length ||
+              y + dy >= userInputs.length ||
               x + dx < 0 ||
-              x + dx >= userInput[0].length
+              x + dx >= userInputs[0].length
             ) {
               continue;
             }
-            if (bombMap[y + dy][x + dx] === 0) {
-              console.log('ok');
+            if (bombMaps[y + dy][x + dx] === 0) {
+              newBoard[y + dy][x + dx] = newBoard[y + dy][x + dx] + 4;
+              if (newBoard[y + dy][x + dx] % 100 === 8) {
+                newBoard[y + dy][x + dx] = newBoard[y + dy][x + dx] - 4;
+              }
             }
           }
         }
+      }
+      if (userInputs[y][x] === 1 && bombMaps[y][x] === 1) {
+        nokoriBomb = nokoriBomb - 1;
+        console.log(nokoriBomb);
       }
     }
   }
@@ -152,11 +185,11 @@ export default function Home() {
   const userInput = makeUserInput(boardSize[0]);
 
   //講習
-  const clickHundler = () => {
-    const newBombMap = structuredClone(bombMap);
-    setNewBombMap(newBombMap);
-  };
-  const [bombMaps, setNewBombMap] = useState([
+  // const clickHundler = () => {
+  //   const newBombMap = structuredClone(bombMap);
+  //   setNewBombMap(newBombMap);
+  // };
+  const [bombMaps, setNewBombMaps] = useState([
     [0, 0, 0, 0, 0, 0, 0, 0, 1],
     [0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 1, 0, 0, 0, 0, 0, 1, 0],
@@ -183,66 +216,84 @@ export default function Home() {
   //console.log(samplePoints);
   const [sampleCounter, setSampleCounter] = useState(0);
   //console.log(sampleCounter);
-  const hundleClick = () => {
-    const newSamplePoint = structuredClone(samplePoints);
-    newSamplePoint[sampleCounter] += 1;
-    setSamplePoints(newSamplePoint);
-    setSampleCounter((sampleCounter + 1) % 14);
-  };
-  const clickReturn = () => {
-    //console.log('クリック！');
-  };
+  // const hundleClick = () => {
+  //   const newSamplePoint = structuredClone(samplePoints);
+  //   newSamplePoint[sampleCounter] += 1;
+  //   setSamplePoints(newSamplePoint);
+  //   setSampleCounter((sampleCounter + 1) % 14);
+  // };
+
   const totalPoint = calcTotalPoint(samplePoints);
   //console.log(totalPoint);
   //ここまで関係ない
-  const board = calcBoard(userInputs, bombMap);
+  const board = calcBoard(userInputs, bombMaps);
 
   const leftClick = (x: number, y: number) => {
     console.log(x, y);
     const newUserInputs = structuredClone(userInputs);
-    newUserInputs[y][x] = 1;
+    newUserInputs[y][x] = 4;
     setUserInputs(newUserInputs);
-    console.log(newUserInputs[y][x]);
+    console.log(calcBoard(newUserInputs, bombMaps)[y][x]);
   };
   const rightClick = (x: number, y: number, evt: React.MouseEvent<HTMLDivElement>) => {
     evt.preventDefault();
     console.log(x, y);
     const newUserInputs = structuredClone(userInputs);
-    //newUserInputs[y][x] = (newUserInputs[y][x] + 1) % 3;
-    if (newUserInputs[y][x] === 4 || newUserInputs[y][x] === 0) {
-      newUserInputs[y][x] = 2;
-    } else {
-      newUserInputs[y][x] = newUserInputs[y][x] + 1;
-    }
-    console.log('value=', newUserInputs[y][x]);
+    newUserInputs[y][x] = (newUserInputs[y][x] + 1) % 3;
     setUserInputs(newUserInputs);
+    console.log(calcBoard(newUserInputs, bombMaps)[y][x]);
   };
   return (
     <div className={styles.container}>
-      <div className={styles.board}>
-        {board.map((row, y) =>
-          row.map((value, x) => (
-            <div
-              className={styles.undercell}
-              key={`${x}-${y}`}
-              style={{ backgroundPosition: `${value * -30}px` }}
-            >
+      <div className={styles.foundation}>
+        <div className={styles.upperboard}>
+          <div
+            className={styles.bombcounter}
+            style={{
+              backgroundPosition: `${nokoriBomb * -70}px`,
+            }}
+          />
+
+          <div
+            className={styles.changeface}
+            style={{
+              backgroundPosition: `${face === 'default' ? -330 : face === 'clear' ? -360 : -390}px`,
+            }}
+          />
+          <div
+            className={styles.timer}
+            style={{
+              backgroundPosition: `${-70}px`,
+            }}
+          />
+        </div>
+        <div className={styles.board}>
+          {board.map((row, y) =>
+            row.map((value, x) => (
               <div
-                className={styles.block}
+                className={styles.undercell}
+                key={`${x}-${y}`}
                 style={{
-                  backgroundPosition: `${value === 2 ? -270 : value === 3 ? -240 : 30}px`,
-                  opacity: value === 1 ? 0 : 1,
+                  backgroundPosition: `${(value > 10000 ? -1 : value / 100) * -30}px`,
+                  backgroundColor: `${value === 1007 ? 'red' : '#c6c6c6'}`,
                 }}
-                onContextMenu={(evt) => rightClick(x, y, evt)}
-                onClick={() => leftClick(x, y)}
-              />
-            </div>
-          )),
-        )}
+              >
+                <div
+                  className={styles.block}
+                  style={{
+                    backgroundPosition: `${value % 100 === 1 ? -270 : value % 100 === 2 ? -240 : 30}px`,
+                    opacity: `${value === 1007 ? 0 : value % 100 === 4 ? 0 : 1}`,
+                  }}
+                  onContextMenu={(evt) => rightClick(x, y, evt)}
+                  onClick={() => leftClick(x, y)}
+                />
+              </div>
+            )),
+          )}
+
+          {/* <button onClick={hundleClick}>go</button> */}
+        </div>
       </div>
-      <button onClick={hundleClick}>go</button>
-      <button onClick={clickHundler}>retry</button>
-      <button onClick={clickReturn}>stop</button>
     </div>
   );
 }
@@ -269,6 +320,5 @@ export default function Home() {
 //boardの設置
 //→八方向調べて爆弾あれ ba 爆弾total?
 //→八方向調べて爆弾あれ ba 爆弾total?
-//クリックイベントでセルのカバーが外れる←なくすてどうやる？
+
 //再起関数で連鎖
-//
