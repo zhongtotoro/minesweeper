@@ -13,12 +13,54 @@ const calcTotalPoint = (arr: number[]) => {
 };
 let face = 'default';
 let nokoriBomb = 10;
-
+let flag = 10;
 //userInputは０か１か 爆弾があるのは０か１か
-const calcBoard = (userInputs: number[][], bombMaps: number[][]) => {
+const calcBoard = (userInputs: number[][], bombMaps: number[][]): number[][] => {
   const newBoard = Array.from({ length: userInputs.length }, () =>
     Array.from({ length: userInputs[0].length }, () => 0),
   );
+
+  function openCells(y: number, x: number, newBoard: number[][]) {
+    if (y < 0 || y >= newBoard.length || x < 0 || x >= newBoard[0].length) {
+      return;
+    }
+
+    if (newBoard[y][x] % 100 === 4 || newBoard[y][x] % 100 === 7) {
+      return;
+    }
+
+    if (newBoard[y][x] === 1000) {
+      return;
+    }
+
+    // 数字マス
+    if (0 <= newBoard[y][x] && newBoard[y][x] <= 700) {
+      newBoard[y][x] += 4;
+      if (newBoard[y][x] % 100 === 8) {
+        newBoard[y][x] = newBoard[y][x] - 4;
+      }
+      return;
+    }
+
+    // 空白マス
+    if (newBoard[y][x] === 10000) {
+      newBoard[y][x] += 4;
+      for (let dy = -1; dy <= 1; dy++) {
+        for (let dx = -1; dx <= 1; dx++) {
+          if (
+            y + dy < 0 ||
+            y + dy >= newBoard.length ||
+            x + dx < 0 ||
+            x + dx >= newBoard[0].length ||
+            (dy === 0 && dx === 0)
+          ) {
+            continue;
+          }
+          openCells(y + dy, x + dx, newBoard);
+        }
+      }
+    }
+  }
 
   for (let y = 0; y < userInputs.length; y++) {
     for (let x = 0; x < userInputs[0].length; x++) {
@@ -44,29 +86,28 @@ const calcBoard = (userInputs: number[][], bombMaps: number[][]) => {
       } else {
         newBoard[y][x] = newBoard[y][x] + 10000; //空
       }
-      console.log(10000, nokoriBomb);
 
       if (bombMaps[y][x] === 1) {
         newBoard[y][x] = newBoard[y][x] + 1000; //爆弾
       }
-      console.log(1000, nokoriBomb);
 
       if (userInputs[y][x] === 1) {
         newBoard[y][x] = newBoard[y][x] + 1; //フラグ
+        flag -= 1;
       }
-      console.log(1, nokoriBomb);
+      //console.log(1, nokoriBomb);
       if (userInputs[y][x] === 2) {
         newBoard[y][x] = newBoard[y][x] + 2; //はてな
       }
-      console.log(2, nokoriBomb);
+      //console.log(2, nokoriBomb);
       if (userInputs[y][x] === 3) {
         newBoard[y][x] = newBoard[y][x] + 3; //クリックした爆弾
       }
-      console.log(3, nokoriBomb);
+      //console.log(3, nokoriBomb);
       if (userInputs[y][x] === 4) {
-        newBoard[y][x] = newBoard[y][x] + 4; //透明
+        newBoard[y][x] = newBoard[y][x] + 4; //開ける
       }
-      console.log(4, nokoriBomb);
+      //console.log(4, nokoriBomb);
     }
   } //クリックとセル表示の管理
 
@@ -82,8 +123,8 @@ const calcBoard = (userInputs: number[][], bombMaps: number[][]) => {
         //爆弾をクリックしたら
         newBoard[y][x] = newBoard[y][x] - 4;
         newBoard[y][x] = newBoard[y][x] + 3;
-        console.log('4 && 1', nokoriBomb);
-        //マス背景赤にしたい
+        //console.log('4 && 1', nokoriBomb);
+
         face = 'fail';
         for (let y = 0; y < userInputs.length; y++) {
           for (let x = 0; x < userInputs[0].length; x++) {
@@ -98,36 +139,20 @@ const calcBoard = (userInputs: number[][], bombMaps: number[][]) => {
 
       if (userInputs[y][x] === 4 && bombMaps[y][x] === 0) {
         //セルをクリックしたら
-        //クリックしたマスと周囲のマスを開く
-        for (let dy = -1; dy <= 1; dy++) {
-          for (let dx = -1; dx <= 1; dx++) {
-            if (
-              y + dy < 0 ||
-              y + dy >= userInputs.length ||
-              x + dx < 0 ||
-              x + dx >= userInputs[0].length
-            ) {
-              continue;
-            }
-            if (bombMaps[y + dy][x + dx] === 0) {
-              newBoard[y + dy][x + dx] = newBoard[y + dy][x + dx] + 4;
-              if (newBoard[y + dy][x + dx] % 100 === 8) {
-                newBoard[y + dy][x + dx] = newBoard[y + dy][x + dx] - 4;
-              }
-            }
-          }
-        }
+        //クリックしたマスと周囲の空白マスを開く
+        openCells(y, x, newBoard);
+        return newBoard;
       }
       if (userInputs[y][x] === 1 && bombMaps[y][x] === 1) {
         nokoriBomb = nokoriBomb - 1;
-        console.log(nokoriBomb);
+        flag = flag - 1;
       }
     }
   }
   return newBoard;
 };
 
-export default function Home() {
+function Home() {
   const numberOfBombs: number[] = [10, 40, 99, 0];
   const [newNumberOfBombs, setNumberOfBombs] = useState<number>(numberOfBombs[0]);
 
@@ -260,7 +285,7 @@ export default function Home() {
           <div
             className={styles.bombcounter}
             style={{
-              backgroundPosition: `${nokoriBomb * -70}px`,
+              backgroundPosition: `${flag * -70}px`,
             }}
           />
 
@@ -307,6 +332,8 @@ export default function Home() {
     </div>
   );
 }
+
+export default Home;
 
 //    再起関数 ｆｎ（）
 //joutai userInputs[0-4]右クリック左クリック？ユーザーがどのマスで『なにしたか
