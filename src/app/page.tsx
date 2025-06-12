@@ -6,6 +6,8 @@ import styles from './page.module.css';
 let face = 'default';
 let nokoriBomb = 10;
 let flag: number = 10;
+let stopTime: number | null = null;
+let firstClick = true;
 
 function openCells(y: number, x: number, newBoard: number[][], checked: number[][]) {
   const height = newBoard.length;
@@ -65,6 +67,7 @@ function calcBoard(
   userInputs: number[][],
   bombMaps: number[][],
   setTimer: (timer: number) => void,
+  timer: number,
 ): number[][] {
   if (newBoard.length === 0) {
     newBoard = Array.from({ length: userInputs.length }, () =>
@@ -73,11 +76,30 @@ function calcBoard(
   }
 
   //console.log('opencellnewBoard86', newBoard[8][6]);
+  flag = 0;
+  for (let y = 0; y < userInputs.length; y++) {
+    for (let x = 0; x < userInputs[0].length; x++) {
+      if (userInputs[y][x] === 1) {
+        flag += 1;
+      }
+    }
+  }
+  flag = 10 - flag;
+  console.log('flag', flag);
 
+  let opendCell = 0;
+  let safeCell = 0;
   for (let y = 0; y < userInputs.length; y++) {
     for (let x = 0; x < userInputs[0].length; x++) {
       if (newBoard[y][x] % 100 === 4 || newBoard[y][x] % 100 === 7 || newBoard[y][x] >= 10004) {
         continue;
+      }
+
+      if (bombMaps[y][x] === 0) {
+        safeCell += 1;
+        if (userInputs[y][x] === 4) {
+          opendCell += 1;
+        }
       }
       console.log('opencellnewBoard1calc', newBoard[1][1]);
       //周囲の爆弾の数を数える、爆弾があるときは０
@@ -117,7 +139,6 @@ function calcBoard(
       if (userInputs[y][x] === 1 && bombMaps[y][x] === 0) {
         console.log('111');
         newBoard[y][x] = newBoard[y][x] + 1;
-        flag = flag - 1;
 
         //フラグ
       }
@@ -126,7 +147,6 @@ function calcBoard(
         //フラグを立てたところが爆弾
         newBoard[y][x] = newBoard[y][x] + 1;
         nokoriBomb = nokoriBomb - 1;
-        flag = flag - 1;
         console.log('222');
       }
 
@@ -147,6 +167,7 @@ function calcBoard(
           }
         }
         face = 'fail';
+        stopTime = timer;
         setTimer(-1);
         //どっかで＋４されてる
 
@@ -162,6 +183,11 @@ function calcBoard(
     }
     // return newBoard;
   } //セル表示の管理
+  if (opendCell === safeCell && face !== 'clear') {
+    face = 'clear';
+    stopTime = timer;
+    setTimer(-1);
+  }
   return newBoard;
 }
 
@@ -176,7 +202,12 @@ function Home() {
     [0, 0],
   ];
 
-  function makeMap(size: number[], bombLevel: number): number[][] {
+  function makeBombMaps(
+    size: number[],
+    bombLevel: number,
+    firstClickX: number,
+    firstClickY: number,
+  ): number[][] {
     //変数名、（引数）、変数はどんな形で出力されるか
     //mapを作る
     const row: number = size[0];
@@ -195,6 +226,9 @@ function Home() {
     while (countBomb < bombLevel) {
       const y = Math.floor(Math.random() * row);
       const x = Math.floor(Math.random() * col);
+      if (x === firstClickX && y === firstClickY) {
+        continue;
+      }
       if (testMap[y][x] === 0) {
         testMap[y][x] = 1;
         countBomb += 1;
@@ -203,11 +237,11 @@ function Home() {
     return testMap;
   }
 
-  const initialBombMap = makeMap(boardSize[0], numberOfBombs[0]);
-  const [bombMap, setBombMap] = useState<number[][]>(initialBombMap);
-  const newBombMap = structuredClone(bombMap);
+  const [bombMaps, setBombMaps] = useState(
+    Array.from({ length: 9 }, () => Array.from({ length: 9 }, () => 0)), //saishokara
+  );
 
-  function makeUserInput(size: number[]): number[][] {
+  function makeUserInputs(size: number[]): number[][] {
     const row: number = size[0];
     const col: number = size[1];
     const testMap: number[][] = [];
@@ -222,36 +256,18 @@ function Home() {
     return testMap;
   }
 
-  const userInput = makeUserInput(boardSize[0]);
+  const [userInputs, setUserInputs] = useState(
+    Array.from({ length: 9 }, () => Array.from({ length: 9 }, () => 0)), // 初期値：未操作マス
+  );
 
   //講習
   // const clickHundler = () => {
   //   const newBombMap = structuredClone(bombMap);
   //   setNewBombMap(newBombMap);
   // };
-  const [bombMaps, setNewBombMaps] = useState([
-    [0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [0, 0, 1, 0, 0, 0, 0, 0, 0],
-    [0, 1, 0, 0, 0, 0, 0, 1, 0],
-    [0, 0, 0, 1, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 1, 0, 0],
-    [0, 0, 0, 1, 0, 0, 0, 0, 0],
-    [0, 1, 0, 0, 0, 1, 0, 1, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 1, 0, 0, 0, 0, 0, 0],
-  ]);
+
   //console.log(bombMap);
-  const [userInputs, setUserInputs] = useState([
-    [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0],
-  ]); //koremo9x9
+  //koremo9x9
   const [samplePoints, setSamplePoints] = useState([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
   //console.log(samplePoints);
   const [sampleCounter, setSampleCounter] = useState(0);
@@ -266,6 +282,7 @@ function Home() {
   // const totalPoint = calcTotalPoint(samplePoints);
   //console.log(totalPoint);
   //ここまで関係ない
+
   const [timer, setTimer] = useState(0);
   useEffect(() => {
     if (timer <= 0) {
@@ -276,26 +293,54 @@ function Home() {
     }, 1000);
     return () => clearInterval(interval);
   }, [timer]);
-  const board = calcBoard(userInputs, bombMaps, setTimer);
+
+  const board = calcBoard(userInputs, bombMaps, setTimer, timer);
 
   const leftClick = (x: number, y: number) => {
+    if (face === 'fail' || face === 'clear') {
+      return;
+    }
+    if (firstClick) {
+      const bombMaps = makeBombMaps(boardSize[0], newNumberOfBombs, x, y);
+      setBombMaps(bombMaps);
+      firstClick = false;
+      return;
+    }
+
     if (timer === 0) {
       setTimer(1);
     }
-    const newUserInputs = structuredClone(userInputs);
-    newUserInputs[y][x] = 4;
-    setUserInputs(newUserInputs);
-    console.log('leftnewUserInputs', newUserInputs[y][x]);
-    console.log('leftcalcBoard', calcBoard(newUserInputs, bombMaps, setTimer)[y][x]);
+    setUserInputs((prev) => {
+      const next = structuredClone(prev);
+      next[y][x] = 4;
+      return next;
+    });
+
+    console.log('leftnewUserInputs', userInputs[y][x]);
   };
   const rightClick = (x: number, y: number, evt: React.MouseEvent<HTMLDivElement>) => {
+    if (face === 'fail' || face === 'clear') {
+      return;
+    }
     evt.preventDefault();
+    if (firstClick) {
+      const bombMaps = makeBombMaps(boardSize[0], newNumberOfBombs, x, y);
+      setBombMaps(bombMaps);
+      firstClick = false;
+      return;
+    }
 
-    const newUserInputs = structuredClone(userInputs);
-    newUserInputs[y][x] = (newUserInputs[y][x] + 1) % 3;
-    setUserInputs(newUserInputs);
-    console.log('rightnewUserInputs', newUserInputs[y][x]);
-    console.log('rightcalcBoard', calcBoard(newUserInputs, bombMaps, setTimer)[y][x]);
+    if (timer === 0) {
+      setTimer(1);
+    }
+
+    setUserInputs((prev) => {
+      const next = structuredClone(prev);
+      next[y][x] = (next[y][x] + 1) % 3;
+      return next;
+    });
+
+    console.log('rightnewUserInputs', userInputs[y][x]);
   };
   return (
     <div className={styles.container}>
@@ -304,7 +349,7 @@ function Home() {
           <div
             className={styles.bombcounter}
             style={{
-              backgroundPosition: `${flag * -70}px`,
+              backgroundPosition: `${flag === 0 ? 0 : flag * -70}px`,
             }}
           />
 
@@ -317,7 +362,7 @@ function Home() {
           <div
             className={styles.timer}
             style={{
-              backgroundPosition: `${timer * -70}px`,
+              backgroundPosition: `${timer === -1 ? (stopTime ?? 0) * -70 : timer * -70}px`,
             }}
           />
         </div>
@@ -344,8 +389,6 @@ function Home() {
               </div>
             )),
           )}
-
-          {/* <button onClick={hundleClick}>go</button> */}
         </div>
       </div>
     </div>
@@ -368,13 +411,3 @@ export default Home;
 //初回で爆発しない→クリックした後にbombマップを作ればいい cliclevent board[y][x] = () => {bombmap作成}
 
 //計算値 状態＋計算
-
-//ユーザーがクリック→board[useInput][bompmap]
-//八方向を調べて（矢印で表せる）爆弾（samplecounter）があったら＋１でー３０Px分動かす
-
-//セルを増殖、座標であつかえるように
-//boardの設置
-//→八方向調べて爆弾あれ ba 爆弾total?
-//→八方向調べて爆弾あれ ba 爆弾total?
-
-//再起関数で連鎖
