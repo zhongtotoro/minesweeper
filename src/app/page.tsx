@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import styles from './page.module.css';
-
+//test用
 let face = 'default';
 let flag: number = 10;
 let maxFlag: number = 10;
