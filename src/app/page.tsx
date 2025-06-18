@@ -12,9 +12,9 @@ let alertOnce = false;
 
 function openCells(y: number, x: number, newBoard: number[][], checked: number[][]) {
   const height = newBoard.length;
-  if (height === 0) return; // 空の盤面の場合は処理しない
+  if (height === 0) return; // 空の盤面の場合はreturn
   const width = newBoard[0].length;
-  if (width === 0) return; // 空の盤面の場合は処理しない
+  if (width === 0) return; // 空の盤面の場合はreturn
 
   // 範囲外チェック
   if (y < 0 || y >= height || x < 0 || x >= width) return;
@@ -30,11 +30,11 @@ function openCells(y: number, x: number, newBoard: number[][], checked: number[]
 
   const cell = newBoard[y][x];
 
-  // すでに開いてる・爆発済み・空白マスで開いた後などは終了
+  // 開いてる爆発済み空白マスで開いた後終わり
   if (
-    cell % 100 === 4 || // 開いてる (数字マスが開いた状態)
+    cell % 100 === 4 || // 開いてる
     cell % 100 === 7 || // 爆発
-    cell >= 10004 // 空白マス＋4（開いたあと）
+    cell >= 10004 // 空白マス＋4）
   ) {
     return;
   }
@@ -331,11 +331,11 @@ function Home() {
       const parsedBombs = parseInt(customBombs, 10);
 
       if (isNaN(parsedWidth) || parsedWidth < 1 || parsedWidth > 500) {
-        alert('幅は1から500の間の数字を入力してください。');
+        alert('幅は1から500の間の数字を入力してください');
         return;
       }
       if (isNaN(parsedHeight) || parsedHeight < 1 || parsedHeight > 500) {
-        alert('高さは1から500の間の数字を入力してください。');
+        alert('高さは1から500の間の数字を入力してください');
         return;
       }
       newSize = [parsedWidth, parsedHeight];
