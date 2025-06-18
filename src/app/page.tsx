@@ -514,9 +514,7 @@ function Home() {
               onChange={(e) => setCustomBombs(e.target.value)}
             />
           </div>
-          <button onClick={() => changeLevel('custom')} className={styles.applyCustomSettings}>
-            設定適用
-          </button>
+          <button onClick={() => changeLevel('custom')}>設定適用</button>
         </div>
       )}
       <div className={styles.button}>
