@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import styles from './page.module.css';
 
-// グローバル変数
 let face = 'default';
 let flag: number = 10;
 let maxFlag: number = 10;
@@ -27,7 +26,7 @@ function openCells(y: number, x: number, newBoard: number[][], checked: number[]
     }
   }
 
-  checked.push([y, x]); // チェック済み
+  checked.push([y, x]); // チェック済みは追加
 
   const cell = newBoard[y][x];
 
@@ -562,8 +561,8 @@ function Home() {
         <div
           className={styles.board}
           style={{
-            width: `${size[0] * 30}px`, // 横マス数 × 1マスのpx幅
-            height: `${size[1] * 30}px`, // 縦マス数 × 1マスのpx高さ
+            width: `${size[0] * 30}px`,
+            height: `${size[1] * 30}px`,
           }}
         >
           {board.map((row, y) =>
