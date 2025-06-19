@@ -171,7 +171,7 @@ function calcBoard(
                 }
               } else if (bombMaps[y2][x2] === 0 && userInputs[y2][x2] === 1) {
                 // 地雷じゃないのに旗が立っていた場合（誤爆）
-                newBoard[y2][x2] = newBoard[y2][x2] + 8; // 誤った旗表示
+                newBoard[y2][x2] = newBoard[y2][x2] + 8; // 誤った旗表示,テキトーに
               }
             }
           }
@@ -231,6 +231,23 @@ function calcBoard(
   if (opendCell === safeCell && face !== 'clear') {
     face = 'clear';
     stopTime = currentTimer;
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        if (bombMaps[y][x] === 1) {
+          // 爆弾の場合
+          if (userInputs[y][x] !== 1) {
+            // 旗が立っていない場合
+            newBoard[y][x] += 1;
+          }
+        } else {
+          // 爆弾でない場合
+          if (userInputs[y][x] === 1) {
+            // 旗が立っている場合
+            newBoard[y][x] -= 1;
+          }
+        }
+      }
+    }
     if (!alertOnce && currentTimer !== -1) {
       setTimer(-1);
       alertOnce = true;
@@ -330,19 +347,25 @@ function Home() {
       const parsedHeight = parseInt(customHeight, 10);
       const parsedBombs = parseInt(customBombs, 10);
 
-      if (isNaN(parsedWidth) || parsedWidth < 1 || parsedWidth > 500) {
-        alert('幅は1から500の間の数字を入力してください');
+      if (isNaN(parsedWidth) || parsedWidth < 1 || parsedWidth > 250) {
+        alert('幅は1から250の間の数字を入力してください');
         return;
       }
-      if (isNaN(parsedHeight) || parsedHeight < 1 || parsedHeight > 500) {
-        alert('高さは1から500の間の数字を入力してください');
+      if (isNaN(parsedHeight) || parsedHeight < 1 || parsedHeight > 90) {
+        alert('高さは1から90の間の数字を入力してください');
         return;
       }
       newSize = [parsedWidth, parsedHeight];
 
       const maxPossibleBombs = parsedWidth * parsedHeight * 0.3;
-      if (isNaN(parsedBombs) || parsedBombs < 1 || parsedBombs > Math.min(2500, maxPossibleBombs)) {
-        alert(`爆弾の数は1から${Math.min(2500, maxPossibleBombs)}の間の数字を入力してください。`);
+      if (
+        isNaN(parsedBombs) ||
+        parsedBombs < 1 ||
+        parsedBombs > Math.min(parsedWidth * parsedHeight * 0.3, maxPossibleBombs)
+      ) {
+        alert(
+          `爆弾の数は1から${Math.min(parsedWidth * parsedHeight * 0.3, maxPossibleBombs)}の間の数字を入力してください。`,
+        );
         return;
       }
       newBombs = parsedBombs;
@@ -401,6 +424,7 @@ function Home() {
 
       const newBombs = makeBombMaps(size, numberOfBombs, x, y);
       setBombMaps(newBombs);
+      console.log(newBombs);
 
       const newInputs = Array.from({ length: size[1] }, () =>
         Array.from({ length: size[0] }, () => 0),
@@ -487,7 +511,7 @@ function Home() {
               id="customWidth"
               type="number"
               min="1"
-              max="500"
+              max="250"
               value={customWidth}
               onChange={(e) => setCustomWidth(e.target.value)}
             />
@@ -526,19 +550,22 @@ function Home() {
       <div
         className={styles.foundation}
         style={{
-          width: `${size[0] * 35}px`,
-          height: `${size[1] * 50}px`,
+          transform: `scale(${level === 'custom' ? 0.8 : 1})`,
+          width: `${level === 'custom' ? size[0] * 30 + 1 : size[0] * 30 + 60}px`,
+          height: `${level === 'custom' ? size[1] * 30 + 100 + 1 : size[1] * 30 + 100 + 60}px`,
         }}
       >
         <div
           className={styles.upperboard}
           style={{
+            transform: `scale(${level === 'custom' ? 0.8 : 1})`,
             width: `${size[0] * 30}px`,
           }}
         >
           <div
             className={styles.flagcounter}
             style={{
+              transform: `scale(${level === 'custom' ? 0.8 : 1})`,
               backgroundPosition: `${flag === 0 ? 0 : flag * -70}px`,
             }}
           />
@@ -546,12 +573,14 @@ function Home() {
           <div
             className={styles.changeface}
             style={{
+              transform: `scale(${level === 'custom' ? 0.8 : 1})`,
               backgroundPosition: `${face === 'default' ? -330 : face === 'clear' ? -360 : -390}px`,
             }}
           />
           <div
             className={styles.timer}
             style={{
+              transform: `scale(${level === 'custom' ? 0.8 : 1})`,
               backgroundPosition: `${timer === -1 ? (stopTime ?? 0) * -70 : timer * -70}px`,
             }}
           />
@@ -559,6 +588,7 @@ function Home() {
         <div
           className={styles.board}
           style={{
+            transform: `scale(${level === 'custom' ? 0.8 : 1})`,
             width: `${size[0] * 30}px`,
             height: `${size[1] * 30}px`,
           }}
